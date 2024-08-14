@@ -1,0 +1,52 @@
+[
+  {
+    "number": 1,
+    "item_name": "laundry",
+    "completed": false
+  },
+  {
+    "number": 2,
+    "item_name": "dishes",
+    "completed": true
+  },
+  {
+    "number": 3,
+    "item_name": "vacuuming",
+    "completed": false
+  },
+  {
+    "number": 4,
+    "item_name": "homework",
+    "completed": false
+  },
+  {
+    "number": 5,
+    "item_name": "brush teeth",
+    "completed": true
+  },
+  {
+    "number": 6,
+    "item_name": "shower",
+    "completed": true
+  },
+  {
+    "number": 7,
+    "item_name": "eat breakfast",
+    "completed": false
+  },
+  {
+    "number": 8,
+    "item_name": "get the mail",
+    "completed": false
+  },
+  {
+    "number": 9,
+    "item_name": "make bed",
+    "completed": true
+  },
+  {
+    "number": 10,
+    "item_name": "clean bathroom",
+    "completed": false
+  }
+]
