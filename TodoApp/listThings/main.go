@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -12,49 +13,67 @@ type Item struct {
 	Completed bool   `json:"completed"`
 }
 
-func writeToFile(content, filename string) {
+type Items struct {
+	Items []Item `json:"items"`
+}
+
+func readFromFile(filename string) {
+	fileContent, err := os.Open(filename)
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("the file is opened successfully...")
+	defer fileContent.Close()
+
+	byteResult, err := io.ReadAll(fileContent)
+	if err != nil {
+		fmt.Printf("failed to read the file. error: %s\n", err)
+		return
+	}
+	var itemList Items
+
+	err = json.Unmarshal(byteResult, &itemList)
+	if err != nil {
+		fmt.Printf("there was an error decoding the json. err = %s", err)
+		return
+	}
+
+	fmt.Println(itemList)
+
+}
+
+func writeToFile(content []byte, filename string) {
 	file, err := os.Create(filename)
 	if err != nil {
-		fmt.Println("Error creating file:", err)
+		fmt.Println("error creating file:", err)
 		return
 	}
 	defer file.Close()
-	_, err = file.WriteString(content)
+	err = os.WriteFile(filename, content, 0644)
 	if err != nil {
-		fmt.Println("Error writing to file:", err)
+		fmt.Println("error writing to file:", err)
 		return
 	}
-	fmt.Println("File written successfully.")
+	fmt.Println("file written successfully.")
 }
 
-func createList(things ...Item) []Item {
+func createList(things ...Item) Items {
 	var listOfThings []Item
 	for _, thing := range things {
 		fmt.Printf("Adding: %v\n", thing)
 		listOfThings = append(listOfThings, thing)
 	}
-	return listOfThings
+	return Items{Items: listOfThings}
 }
 
-func convertToJsonString(items []Item) string {
+func convertToJsonString(items Items) []byte {
 	b, err := json.MarshalIndent(items, "", "  ")
 	if err != nil {
 		fmt.Println("Error converting to JSON:", err)
-		return ""
+		return []byte("")
 	}
-	return string(b)
-}
-
-func jsonToGo(input string) {
-	var obj any
-	err := json.Unmarshal([]byte(input), &obj)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	m := obj.(map[string]any)
-	fmt.Println("Name:", m["name"])
-	fmt.Println("Age:", m["age"])
+	return b
 }
 
 func main() {
@@ -73,7 +92,8 @@ func main() {
 	}
 
 	list := createList(todo...)
-	jsonString := convertToJsonString(list)
-	fmt.Println(jsonString)
-	writeToFile(jsonString, "items.json")
+	bytes := convertToJsonString(list)
+	fmt.Println(string(bytes))
+	writeToFile(bytes, "items.json")
+	readFromFile("items.json")
 }
