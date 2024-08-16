@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 )
 
 type Item struct {
@@ -94,6 +95,38 @@ func main() {
 	list := createList(todo...)
 	bytes := convertToJsonString(list)
 	fmt.Println(string(bytes))
-	writeToFile(bytes, "items.json")
-	readFromFile("items.json")
+	concurrentList(list)
+	//writeToFile(bytes, "items.json")
+	//readFromFile("items.json")
+}
+
+func concurrentList(list Items) {
+	var wg sync.WaitGroup
+	//Add(int) adds delta, which may be negative, to the WaitGroup counter.
+	wg.Add(2)
+
+	itemChannel := make(chan Item)
+	statusChannel := make(chan bool)
+
+	go func() {
+		//Done() decrements the WaitGroup counter by one.
+		defer wg.Done()
+		for _, item := range list.Items {
+			itemChannel <- item
+			fmt.Printf("item: %s\n", item.ItemName)
+			<-statusChannel
+		}
+		close(itemChannel)
+	}()
+
+	go func() {
+		defer wg.Done()
+		for item := range itemChannel {
+			fmt.Printf("status: %t\n", item.Completed)
+			statusChannel <- item.Completed
+		}
+		close(statusChannel)
+	}()
+	//Wait() blocks until the WaitGroup counter is zero.
+	wg.Wait()
 }
