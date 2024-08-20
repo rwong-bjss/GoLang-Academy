@@ -23,6 +23,6 @@ func TestAssignments(t *testing.T) {
 		got := createList(Item{1, "todo", true}, Item{2, "todo", false})
 		want := []Item{{1, "todo", true}, {2, "todo", false}}
 
-		assert.EqualSlice(t, got, want)
+		assert.EqualInterface(t, got, want)
 	})
 }

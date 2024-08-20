@@ -13,7 +13,7 @@ func Equal[T comparable](t *testing.T, actual, expected T) {
 	}
 }
 
-func EqualSlice(t *testing.T, actual, expected interface{}) {
+func EqualInterface(t *testing.T, actual, expected interface{}) {
 	t.Helper()
 
 	if !reflect.DeepEqual(actual, expected) {
@@ -39,5 +39,11 @@ func assertCorrectMessage(t testing.TB, got, want string) {
 	t.Helper()
 	if got != want {
 		t.Errorf("got %q want %q", got, want)
+	}
+}
+
+func AssertNoError(t testing.TB, err error) {
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
 	}
 }
