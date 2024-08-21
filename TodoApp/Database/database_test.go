@@ -58,7 +58,7 @@ func TestDatabase(t *testing.T) {
 		err := InsertItem(database, &Item{2, "Laundry", true})
 		assert.AssertNoError(t, err)
 
-		items, _ := GetAllItems(database)
+		items := GetAllItems(database)
 		assert.AssertSize(t, items.Items, 2)
 
 		expectedList := []Item{
@@ -74,13 +74,13 @@ func TestDatabase(t *testing.T) {
 		err := InsertItem(database, &Item{2, "Laundry", true})
 		assert.AssertNoError(t, err)
 
-		items, _ := GetAllItems(database)
+		items := GetAllItems(database)
 		assert.AssertSize(t, items.Items, 2)
 
 		errDel := DeleteItemById(database, 2)
 		assert.AssertNoError(t, errDel)
 
-		itemsActual, _ := GetAllItems(database)
+		itemsActual := GetAllItems(database)
 		assert.AssertSize(t, itemsActual.Items, 1)
 	})
 

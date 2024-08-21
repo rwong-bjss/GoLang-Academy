@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h1>To-Do List</h1>
+<form action="/manage" method="post">
+    <input type="number" name="id" placeholder="ID" required>
+    <input type="text" name="name" placeholder="Item Name" required>
+    <button type="submit">Create</button>
+</form>
+
+<h2>Items</h2>
+{{range .Items}}
+<div>
+    <p><strong>ID: {{.Number}}</strong> - {{.ItemName}}</p>
+    <form action="/manage" method="post" style="display:inline;">
+        <input type="hidden" name="id" value="{{.Number}}">
+        <input type="text" name="name" value="{{.ItemName}}">
+        <label>
+            <input type="checkbox" name="status" value="true" {{if .Status}}checked{{end}}> Completed
+        </label>
+        <input type="hidden" name="_method" value="PUT">
+        <button type="submit">Update</button>
+    </form>
+    <form action="/manage" method="post" style="display:inline;">
+        <input type="hidden" name="id" value="{{.Number}}">
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit">Delete</button>
+    </form>
+</div>
+<hr>
+{{else}}
+<p>No items found.</p>
+{{end}}
+</body>
+</html>
