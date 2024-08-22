@@ -7,9 +7,10 @@
 </head>
 <body>
 <h1>To-Do List</h1>
-<form action="/manage" method="post">
+<form action="/items" method="post">
     <input type="number" name="id" placeholder="ID" required>
     <input type="text" name="name" placeholder="Item Name" required>
+    <input type="hidden" name="_method" value="POST">
     <button type="submit">Create</button>
 </form>
 
@@ -17,8 +18,8 @@
 {{range .Items}}
 <div>
     <p><strong>ID: {{.Number}}</strong> - {{.ItemName}}</p>
-    <form action="/manage" method="post" style="display:inline;">
-        <input type="hidden" name="id" value="{{.Number}}">
+    <!-- Update Form -->
+    <form action="/items/{{.Number}}" method="post" style="display:inline;">
         <input type="text" name="name" value="{{.ItemName}}">
         <label>
             <input type="checkbox" name="status" value="true" {{if .Status}}checked{{end}}> Completed
@@ -26,8 +27,8 @@
         <input type="hidden" name="_method" value="PUT">
         <button type="submit">Update</button>
     </form>
-    <form action="/manage" method="post" style="display:inline;">
-        <input type="hidden" name="id" value="{{.Number}}">
+    <!-- Delete Form -->
+    <form action="/items/{{.Number}}" method="post" style="display:inline;">
         <input type="hidden" name="_method" value="DELETE">
         <button type="submit">Delete</button>
     </form>

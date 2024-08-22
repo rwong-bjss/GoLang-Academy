@@ -9,6 +9,8 @@ import (
 	"strconv"
 )
 
+//channel use a channel to chain requests as if it's a queue and have each method concurrently handle.
+
 // Handler to list all Items
 func Items(w http.ResponseWriter, req *http.Request) {
 	// Set content type
@@ -57,7 +59,6 @@ func Item(w http.ResponseWriter, req *http.Request) {
 
 	switch req.Method {
 	case "GET":
-		// Retrieve all Items
 		items, err := database.GetItemByID(db, id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

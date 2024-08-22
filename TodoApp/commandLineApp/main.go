@@ -17,7 +17,7 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Println("\nChoose an action: create, read, update, delete, list, or exit")
+		fmt.Println("\nChoose an operation: create, read, update, delete, list, or exit")
 		fmt.Print("-> ")
 		action, _ := reader.ReadString('\n')
 		action = strings.TrimSpace(action)
