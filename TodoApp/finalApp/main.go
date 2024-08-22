@@ -119,17 +119,11 @@ func Item(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
-// Serve the static files (CSS, JS)
-func serveStaticFiles(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, r.URL.Path[1:])
-}
-
 func newAppMux() *http.ServeMux {
 	router := http.NewServeMux()
 	router.HandleFunc("/", homePage)
 	router.HandleFunc("/items", Items)
 	router.HandleFunc("/items/{id}", Item)
-	router.HandleFunc("/static/", serveStaticFiles)
 	return router
 }
 
