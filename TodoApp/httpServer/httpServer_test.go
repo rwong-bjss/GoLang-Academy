@@ -18,12 +18,12 @@ func setupTestDatabase() *database.Database {
 
 	// Pre-populate with one item
 	initialItem := &database.Item{
-		Number:   1,
+		Id:       1,
 		ItemName: "Test item",
 		Status:   true,
 	}
 
-	testDB.Items[initialItem.Number] = initialItem
+	testDB.Items[initialItem.Id] = initialItem
 	return testDB
 }
 
@@ -31,20 +31,18 @@ func TestGETItems(t *testing.T) {
 	db = setupTestDatabase()
 
 	t.Run("returns pre populated Items", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/items", nil)
+		request, _ := http.NewRequest(http.MethodGet, "/itemsHandler", nil)
 		response := httptest.NewRecorder()
 
 		Items(response, request)
 		var got database.List
 		err := json.Unmarshal(response.Body.Bytes(), &got)
-		if err != nil {
-			return
-		}
+		assert.AssertNoError(t, err)
 
 		// Create a list containing the item
 		want := database.List{
 			Items: []database.Item{{
-				Number:   1,
+				Id:       1,
 				ItemName: "Test item",
 				Status:   true,
 			}},
@@ -57,12 +55,12 @@ func TestGETItems(t *testing.T) {
 func TestPOSTItems(t *testing.T) {
 	t.Run("returns created item", func(t *testing.T) {
 		item := database.Item{
-			Number:   1,
+			Id:       1,
 			ItemName: "Test item",
 			Status:   true,
 		}
 		reader, _ := jsonReaderFactory(item)
-		request, _ := http.NewRequest(http.MethodPost, "/items", reader)
+		request, _ := http.NewRequest(http.MethodPost, "/itemsHandler", reader)
 		response := httptest.NewRecorder()
 		Items(response, request)
 		var got database.Item
@@ -89,13 +87,13 @@ func jsonReaderFactory(in interface{}) (io.Reader, error) {
 func TestPUTItems(t *testing.T) {
 	t.Run("returns updated item", func(t *testing.T) {
 		item := database.Item{
-			Number:   1,
+			Id:       1,
 			ItemName: "changed item",
 			Status:   false,
 		}
 
 		reader, _ := jsonReaderFactory(item)
-		request, _ := http.NewRequest(http.MethodPut, "/items/1", reader)
+		request, _ := http.NewRequest(http.MethodPut, "/itemsHandler/1", reader)
 		request.SetPathValue("id", "1")
 		response := httptest.NewRecorder()
 		Item(response, request)
@@ -113,7 +111,7 @@ func TestPUTItems(t *testing.T) {
 func TestDELETEItems(t *testing.T) {
 	t.Run("returns deleted item", func(t *testing.T) {
 		//todo this is a bit hacky to test the path params
-		request, _ := http.NewRequest(http.MethodDelete, "/items/1", nil)
+		request, _ := http.NewRequest(http.MethodDelete, "/itemsHandler/1", nil)
 		request.SetPathValue("id", "1")
 		response := httptest.NewRecorder()
 		Item(response, request)
@@ -123,7 +121,7 @@ func TestDELETEItems(t *testing.T) {
 
 func TestGETItem(t *testing.T) {
 	t.Run("returns item", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/items/1", nil)
+		request, _ := http.NewRequest(http.MethodGet, "/itemsHandler/1", nil)
 		response := httptest.NewRecorder()
 		Item(response, request)
 		var got database.Item
@@ -132,7 +130,7 @@ func TestGETItem(t *testing.T) {
 			return
 		}
 		want := database.Item{
-			Number:   1,
+			Id:       1,
 			ItemName: "Test item",
 			Status:   true,
 		}
@@ -173,7 +171,7 @@ func TestIntegrationGet(t *testing.T) {
 	// Create a list containing the item
 	want := database.List{
 		Items: []database.Item{{
-			Number:   1,
+			Id:       1,
 			ItemName: "Test item",
 			Status:   true,
 		}},
@@ -194,25 +192,18 @@ func TestIntegrationPost(t *testing.T) {
 	   "item_name": "Test item 2",
 	   "completed": true
 	}`))
-	if err != nil {
-		t.Errorf("Wasn't expecting error. Got: %v", err)
-	}
+	assert.AssertNoError(t, err)
 
 	resBody, err := io.ReadAll(res.Body)
 	res.Body.Close()
-	if err != nil {
-		t.Errorf("Wasn't expecting error. Got: %v", err)
-	}
+	assert.AssertNoError(t, err)
 
 	var got database.Item
 	err = json.Unmarshal(resBody, &got)
-	if err != nil {
-		return
-	}
+	assert.AssertNoError(t, err)
 
-	// Create a list containing the item
 	want := database.Item{
-		Number:   2,
+		Id:       2,
 		ItemName: "Test item 2",
 		Status:   true,
 	}

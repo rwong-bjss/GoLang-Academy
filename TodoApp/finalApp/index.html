@@ -7,7 +7,7 @@
 </head>
 <body>
 <h1>To-Do List</h1>
-<form action="/items" method="post">
+<form action="/itemsHandler" method="post">
     <input type="number" name="id" placeholder="ID" required>
     <input type="text" name="name" placeholder="Item Name" required>
     <input type="hidden" name="_method" value="POST">
@@ -19,16 +19,16 @@
 <div>
     <p><strong>ID: {{.Number}}</strong> - {{.ItemName}}</p>
     <!-- Update Form -->
-    <form action="/items/{{.Number}}" method="post" style="display:inline;">
+    <form action="/itemsHandler/{{.Number}}" method="post" style="display:inline;">
         <input type="text" name="name" value="{{.ItemName}}">
         <label>
-            <input type="checkbox" name="status" value="true" {{if .Status}}checked{{end}}> Completed
+            <input type="checkbox" name="status" value="true" {{if .Completed}}checked{{end}}> Completed
         </label>
         <input type="hidden" name="_method" value="PUT">
         <button type="submit">Update</button>
     </form>
     <!-- Delete Form -->
-    <form action="/items/{{.Number}}" method="post" style="display:inline;">
+    <form action="/itemsHandler/{{.Number}}" method="post" style="display:inline;">
         <input type="hidden" name="_method" value="DELETE">
         <button type="submit">Delete</button>
     </form>

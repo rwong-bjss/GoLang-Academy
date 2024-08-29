@@ -36,7 +36,7 @@ func main() {
 			statusStr, _ := reader.ReadString('\n')
 			status, _ := strconv.ParseBool(strings.TrimSpace(statusStr))
 
-			item := database.Item{Number: id, ItemName: name, Status: status}
+			item := database.Item{Id: id, ItemName: name, Status: status}
 			err := database.InsertItem(db, &item)
 			if err != nil {
 				fmt.Println("Failed to create item:", err)
@@ -69,7 +69,7 @@ func main() {
 			statusStr, _ := reader.ReadString('\n')
 			status, _ := strconv.ParseBool(strings.TrimSpace(statusStr))
 
-			newItem := database.Item{Number: id, ItemName: name, Status: status}
+			newItem := database.Item{Id: id, ItemName: name, Status: status}
 			err := database.UpdateItem(db, id, &newItem)
 			if err != nil {
 				fmt.Println("Failed to update item:", err)
@@ -93,7 +93,7 @@ func main() {
 			items := database.GetAllItems(db)
 
 			for _, item := range items.Items {
-				fmt.Printf("ID: %d, Item: %s, Status: %t\n", item.Number, item.ItemName, item.Status)
+				fmt.Printf("ID: %d, Item: %s, Status: %t\n", item.Id, item.ItemName, item.Status)
 			}
 
 		case "exit":

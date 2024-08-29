@@ -13,12 +13,12 @@ func setupDatabase() *Database {
 
 	// Pre-populate with one item
 	initialItem := &Item{
-		Number:   1,
+		Id:       1,
 		ItemName: "Pre-populated Item",
 		Status:   false,
 	}
 
-	testDB.Items[initialItem.Number] = initialItem
+	testDB.Items[initialItem.Id] = initialItem
 	return testDB
 }
 
@@ -62,8 +62,8 @@ func TestDatabase(t *testing.T) {
 		assert.AssertSize(t, items.Items, 2)
 
 		expectedList := []Item{
-			{Number: 1, ItemName: "Pre-populated Item", Status: false},
-			{Number: 2, ItemName: "Laundry", Status: true},
+			{Id: 1, ItemName: "Pre-populated Item", Status: false},
+			{Id: 2, ItemName: "Laundry", Status: true},
 		}
 
 		assert.EqualInterface(t, items.Items, expectedList)
@@ -96,7 +96,7 @@ func TestDatabase(t *testing.T) {
 	t.Run("Can update item", func(t *testing.T) {
 		database := setupDatabase()
 		updateItem := &Item{
-			Number:   1,
+			Id:       1,
 			ItemName: "newer item",
 			Status:   true,
 		}
@@ -110,7 +110,7 @@ func TestDatabase(t *testing.T) {
 	t.Run("Can fail update item that does not exist", func(t *testing.T) {
 		database := setupDatabase()
 		updateItem := &Item{
-			Number:   1,
+			Id:       1,
 			ItemName: "newer item",
 			Status:   true,
 		}

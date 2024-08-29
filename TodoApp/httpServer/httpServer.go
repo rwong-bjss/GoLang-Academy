@@ -122,12 +122,12 @@ func setupDatabase() *database.Database {
 
 	// Pre-populate with one item
 	initialItem := &database.Item{
-		Number:   1,
+		Id:       1,
 		ItemName: "Pre-populated Item",
 		Status:   false,
 	}
 
-	testDB.Items[initialItem.Number] = initialItem
+	testDB.Items[initialItem.Id] = initialItem
 	return testDB
 }
 
@@ -141,8 +141,8 @@ var db = setupDatabase()
 
 func newAppMux() *http.ServeMux {
 	router := http.NewServeMux()
-	router.HandleFunc("/items", Items)
-	router.HandleFunc("/items/{id}", Item)
+	router.HandleFunc("/itemsHandler", Items)
+	router.HandleFunc("/itemsHandler/{id}", Item)
 	router.HandleFunc("/headers", headers)
 	return router
 }

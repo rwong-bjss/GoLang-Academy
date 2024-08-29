@@ -1,11 +1,13 @@
 package database
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Item struct {
-	Number   int    `json:"number"`
+	Id       int    `json:"id"`
 	ItemName string `json:"item_name"`
-	Status   bool   `json:"completed"`
+	Status   bool   `json:"status"`
 }
 
 type List struct {
@@ -31,10 +33,10 @@ func CreateDatabase() *Database {
 
 // InsertItem Insert an item into the database
 func InsertItem(db *Database, item *Item) error {
-	if _, exists := db.Items[item.Number]; exists {
-		return fmt.Errorf("item with ID %d already exists", item.Number)
+	if _, exists := db.Items[item.Id]; exists {
+		return fmt.Errorf("item with ID %d already exists", item.Id)
 	}
-	db.Items[item.Number] = item
+	db.Items[item.Id] = item
 	return nil
 }
 

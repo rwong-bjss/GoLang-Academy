@@ -2,6 +2,7 @@ package main
 
 import (
 	database "GoLang-Academy/TodoApp/Database"
+	toDoService "GoLang-Academy/TodoApp/ToDoService"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -10,100 +11,42 @@ import (
 	"strconv"
 )
 
-// Global database instance
 var db = database.CreateDatabase()
 
-// Handler for the homepage
 func homePage(w http.ResponseWriter, req *http.Request) {
-	tmpl := template.Must(template.ParseFiles("index.html"))
-	items := database.GetAllItems(db)
+	tmpl := template.Must(template.ParseFiles("TodoApp/finalApp/index.html"))
+	items := toDoService.GetItems(db)
 	tmpl.Execute(w, items)
 }
 
-func Items(w http.ResponseWriter, req *http.Request) {
-
-	if req.Method != "POST" {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	err := req.ParseForm()
-	if err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
-		return
-	}
-
-	method := req.FormValue("_method")
-	id, _ := strconv.Atoi(req.FormValue("id"))
-	name := req.FormValue("name")
-	status := req.FormValue("status") == "true"
-
-	item := database.Item{
-		Number:   id,
-		ItemName: name,
-		Status:   status,
-	}
-
+func itemsHandler(w http.ResponseWriter, r *http.Request) {
+	method, id, itemName, status := extractFormData(w, r)
 	switch method {
-	case "POST":
-		if err := database.InsertItem(db, &item); err != nil {
-			http.Error(w, fmt.Sprintf("Failed to insert item: %s", err.Error()), http.StatusInternalServerError)
-			return
-		}
-	case "GET":
-		items := database.GetAllItems(db)
+	case http.MethodGet:
+		items := toDoService.GetItems(db)
 		if err := json.NewEncoder(w).Encode(items); err != nil {
 			//todo note the errors aren't formatted in JSON
 			http.Error(w, "Failed to encode Items", http.StatusInternalServerError)
 			return
 		}
+	case http.MethodPost:
+		err := toDoService.PostItem(db, id, itemName, status)
+		if err != nil {
+			http.Error(w, "Failed to create item: "+err.Error(), http.StatusBadRequest)
+			return
+		}
 	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
-
-	http.Redirect(w, req, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func Item(w http.ResponseWriter, req *http.Request) {
-	id, conversionErr := strconv.Atoi(req.PathValue("id"))
-	if conversionErr != nil {
-		http.Error(w, "Failed convert parameter", http.StatusInternalServerError)
-	}
-
-	if req.Method != "POST" {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	err := req.ParseForm()
-	if err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
-		return
-	}
-
-	method := req.FormValue("_method")
-	name := req.FormValue("name")
-	status := req.FormValue("status") == "true"
-
-	item := database.Item{
-		Number:   id,
-		ItemName: name,
-		Status:   status,
-	}
+func itemHandler(w http.ResponseWriter, r *http.Request) {
+	method, id, itemName, status := extractFormDataWithPathID(w, r)
 
 	switch method {
-	case "PUT":
-		if err := database.UpdateItem(db, id, &item); err != nil {
-			http.Error(w, fmt.Sprintf("Failed to update item: %s", err.Error()), http.StatusInternalServerError)
-			return
-		}
-	case "DELETE":
-		if err := database.DeleteItemById(db, id); err != nil {
-			http.Error(w, fmt.Sprintf("Failed to delete item: %s", err.Error()), http.StatusInternalServerError)
-			return
-		}
-	case "GET":
-		item, err := database.GetItemByID(db, id)
+	case http.MethodGet:
+		item, err := toDoService.GetItem(db, id)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Failed to retrieve item: %s", err.Error()), http.StatusInternalServerError)
 			return
@@ -112,18 +55,56 @@ func Item(w http.ResponseWriter, req *http.Request) {
 			http.Error(w, "Failed to encode item as JSON", http.StatusInternalServerError)
 			return
 		}
+	case http.MethodPut:
+		err := toDoService.UpdateItem(db, id, itemName, status)
+		if err != nil {
+			return
+		}
+	case http.MethodDelete:
+		err := toDoService.DeleteItem(db, id)
+		if err != nil {
+			return
+		}
 	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func extractFormData(w http.ResponseWriter, req *http.Request) (method string, id int, itemName string, status bool) {
+	if req.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
 	}
 
-	http.Redirect(w, req, "/", http.StatusSeeOther)
+	err := req.ParseForm()
+	if err != nil {
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		return
+	}
+
+	itemId, _ := strconv.Atoi(req.FormValue("id"))
+	method = req.FormValue("_method")
+	name := req.FormValue("name")
+	status = req.FormValue("status") == "true"
+	return method, itemId, name, status
+}
+
+func extractFormDataWithPathID(w http.ResponseWriter, req *http.Request) (method string, id int, itemName string, status bool) {
+	pathId, conversionErr := strconv.Atoi(req.PathValue("id"))
+	if conversionErr != nil {
+		http.Error(w, "Failed to convert parameter: "+conversionErr.Error(), http.StatusInternalServerError)
+	}
+	m, _, n, s := extractFormData(w, req)
+	return m, pathId, n, s
 }
 
 func newAppMux() *http.ServeMux {
 	router := http.NewServeMux()
 	router.HandleFunc("/", homePage)
-	router.HandleFunc("/items", Items)
-	router.HandleFunc("/items/{id}", Item)
+	router.HandleFunc("/itemsHandler", itemsHandler)
+	router.HandleFunc("/itemsHandler/{id}", itemHandler)
+
 	return router
 }
 

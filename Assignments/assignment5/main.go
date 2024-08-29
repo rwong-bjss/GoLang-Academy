@@ -25,7 +25,7 @@ func acceptSingleDigits() []int {
 	fmt.Println("Enter three single-digit numbers:")
 	for i := 0; i < 3; i++ {
 		for {
-			fmt.Printf("Number %d: ", i+1)
+			fmt.Printf("Id %d: ", i+1)
 			fmt.Scan(&numbers[i])
 			if numbers[i] >= 0 && numbers[i] <= 9 {
 				break
@@ -41,7 +41,7 @@ func acceptDoubleDigits() []int {
 	fmt.Println("Enter three double-digit numbers:")
 	for i := 0; i < 3; i++ {
 		for {
-			fmt.Printf("Number %d: ", i+1)
+			fmt.Printf("Id %d: ", i+1)
 			fmt.Scan(&numbers[i])
 			if numbers[i] >= 10 && numbers[i] <= 99 {
 				break
@@ -56,7 +56,7 @@ func acceptTripleDigits() []int {
 	fmt.Println("Enter three triple-digit numbers:")
 	for i := 0; i < 3; i++ {
 		for {
-			fmt.Printf("Number %d: ", i+1)
+			fmt.Printf("Id %d: ", i+1)
 			fmt.Scan(&numbers[i])
 			if numbers[i] >= 100 && numbers[i] <= 999 {
 				break
