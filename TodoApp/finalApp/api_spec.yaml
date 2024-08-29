@@ -1,0 +1,171 @@
+openapi: 3.0.0
+info:
+  title: ToDo List API
+  description: A simple API to manage a to-do list stored in memory.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local server
+
+paths:
+  /items:
+    post:
+      summary: Create a new to-do item
+      operationId: createItem
+      requestBody:
+        description: The to-do item to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Successfully created item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: Bad Request (e.g., item with the same ID already exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: Get a list of all to-do items
+      operationId: listItems
+      responses:
+        '200':
+          description: A list of to-do items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /items/{id}:
+    get:
+      summary: Get a to-do item by its ID
+      operationId: getItemById
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: The ID of the to-do item to retrieve
+      responses:
+        '200':
+          description: The requested to-do item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update a to-do item by its ID
+      operationId: updateItemById
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: The ID of the to-do item to update
+      requestBody:
+        description: The updated to-do item
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '200':
+          description: Successfully updated item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete a to-do item by its ID
+      operationId: deleteItemById
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: The ID of the to-do item to delete
+      responses:
+        '200':
+          description: Successfully deleted item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Deleted item with ID 1
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        number:
+          type: integer
+          description: Unique identifier for the item
+        item_name:
+          type: string
+          description: The to-do item description
+        completed:
+          type: boolean
+          description: Status of the to-do item (true if completed)
+      required:
+        - number
+        - item_name
+        - completed
+
+    List:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+      required:
+        - message
